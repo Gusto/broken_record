@@ -32,7 +32,10 @@ module BrokenRecord
       end
       print "  (#{duration}s)\n"
 
-      print all_errors[0..result_count-1].join if all_errors.any?
+      if all_errors.any?
+        print "#{all_errors.length} errors were found while running validations for #{klass}\n"
+        print all_errors[0..result_count-1].join
+      end
     end
 
     def report_final_results
