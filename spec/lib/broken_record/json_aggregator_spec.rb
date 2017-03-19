@@ -9,7 +9,7 @@ module BrokenRecord
     let(:object_result1) { JobResult.new(Job.new(klass:Object)) }
     let(:string_result0) { JobResult.new(Job.new(klass:String)) }
     let(:string_result1) { JobResult.new(Job.new(klass:String)) }
-    let(:json_file) { 'broken_records_results.json' }
+    let(:json_file) { 'broken_record_results.json' }
     describe '#report_final_results' do
       before(:each) do
         object_result0.start_timer
@@ -53,7 +53,7 @@ module BrokenRecord
           }
         }
         expect(File).to exist(json_file)
-        File.open('broken_records_results.json').each do |line|
+        File.open(json_file).each do |line|
           expect(JSON.parse(line)).to eql(errors)
         end
         File.delete(json_file)
