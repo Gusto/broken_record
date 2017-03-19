@@ -14,15 +14,15 @@ module BrokenRecord
       before(:each) do
         object_result0.start_timer
         object_result0.stop_timer
-        object_result0.add_error(1, 'Invalid Record', 'Missing Title')
+        object_result0.add_error(id: 1, error_type: 'Invalid Record', message: 'Missing Title')
 
         object_result1.start_timer
         object_result1.stop_timer
-        object_result1.add_error(0, 'Exception', 'Something is wrong')
+        object_result1.add_error(id: 0, error_type: 'Exception', message: 'Something is wrong')
 
         string_result0.start_timer
         string_result0.stop_timer
-        string_result0.add_error(0, 'Invalid Record', 'F word detected')
+        string_result0.add_error(error_type: 'Loading Error', message: 'Whaaaat!')
 
         string_result1.start_timer
         string_result1.stop_timer
@@ -48,7 +48,7 @@ module BrokenRecord
           'String'=> {
             'duration'=>0.0,
             'invalid_records'=>[
-              [{'id'=>0, 'message'=>'F word detected', 'error_type'=>'Invalid Record'}]
+              [{'id'=>nil, 'message'=>'Whaaaat!', 'error_type'=>'Loading Error'}]
             ]
           }
         }
