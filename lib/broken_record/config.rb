@@ -20,7 +20,6 @@ module BrokenRecord
     self.job_scheduler_options = {}
     self.slack_options = {}
     self.datadog_api_key = ENV['DATADOG_API_KEY']
-    # TODO: Add option to slack_add_snippet
 
     def before_scan(&block)
       self.before_scan_callbacks << block
