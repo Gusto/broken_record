@@ -7,7 +7,13 @@ module BrokenRecord
         icon_emoji: success? ? ':white_check_mark:' : ':x:',
         username: "#{app_name} ValidationMaster"
       })
+      send_summary
+      send_snippet
+    end
 
+    private
+
+    def send_summary
       if success?
         notifier.send!("\nAll models validated successfully.")
       else
@@ -15,5 +21,11 @@ module BrokenRecord
       end
     end
 
+    def send_snippet
+      # For all validated classes, get all-errors on each class, and print all_errors
+      require 'pry'; binding.pry
+      @aggregated_results
+      puts 'sending snippet'
+    end
   end
 end

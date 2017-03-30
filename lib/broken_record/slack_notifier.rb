@@ -1,26 +1,27 @@
 require 'net/http'
 module BrokenRecord
   class SlackNotifier
-    def initialize(options)
-      @options = BrokenRecord::Config.slack_options.merge(options)
+    def initialize(initial_options)
+      @options = default_options
+      @options = @options.merge(initial_options)
+      @options = @options.merge(BrokenRecord::Config.slack_options)
     end
 
     def send!(message)
+      return unless @options[:summary]
       if defined?(Rails) && Rails.env.development?
         puts message
       else
-        slack_params = options.merge(text: message)
+        slack_params = @options.merge(text: message)
         uri = URI('https://slack.com/api/chat.postMessage')
         uri.query = URI.encode_www_form(slack_params)
         Net::HTTP.get(uri)
       end
     end
 
-    private
+    def
 
-    def options
-      default_options.merge(@options)
-    end
+    private
 
     def default_options
       {
@@ -31,6 +32,7 @@ module BrokenRecord
         pretty: '1',
         username: 'ValidationMaster',
         icon_emoji: ':llama:',
+        summary: true
       }
     end
 
