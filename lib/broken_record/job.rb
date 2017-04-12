@@ -4,8 +4,10 @@ module BrokenRecord
   class Job
     attr_accessor :klass, :index, :parallelization
 
-    def initialize(options)
-      options.each { |k, v| send("#{k}=", v) }
+    def initialize(klass:, index: 0, parallelization: 1)
+      self.klass = klass
+      self.index = index
+      self.parallelization = parallelization
     end
 
     def perform
