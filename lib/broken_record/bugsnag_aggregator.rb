@@ -50,12 +50,8 @@ module BrokenRecord
     def report_exceptions(klass)
       summary = {}
 
-      @aggregated_results[klass].flat_map(&:exceptions).each do |record_id, exception|
-        summary[record_id] = {
-            context: "#{exception.class} - #{exception.backtrace.grep(Regexp.new(Rails.root.to_s))[0][/`.*'/][1..-2]}",
-            message: exception.message,
-            source: exception.backtrace
-          }
+      @aggregated_results[klass].flat_map(&:exceptions).each do |record_id, exception_hash|
+        summary[record_id] = exception_hash
       end
 
       report = {}
@@ -69,7 +65,8 @@ module BrokenRecord
         ids = hash[:record_ids]
         source = hash[:source]
         message = hash[:message]
-        exception = InvalidRecordException.new("#{kontext} - #{ids.count} errors")
+        exception_class = hash[:exception_class]
+        exception = InvalidRecordException.new("#{exception_class} - #{message} - #{ids.count} errors")
         exception.class.define_singleton_method(:name) { klass.name }
         exception.set_backtrace(source)
 
@@ -77,7 +74,8 @@ module BrokenRecord
           context: kontext,
           ids: ids,
           message: message,
-          class: klass)
+          class: klass,
+          exception_class: exception_class)
       end
     end
 

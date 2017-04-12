@@ -20,7 +20,15 @@ module BrokenRecord
     def add_error(id: nil, error_type:, message:, errors: nil, exception: nil)
       @normalized_errors << { id: id, message: message, error_type: error_type }
       @original_errors << [id, errors] if errors
-      @exceptions << [id, exception] if exception
+      if exception
+        exception_hash = {
+            context: exception.backtrace.grep(Regexp.new(Rails.root.to_s))[0].gsub(Rails.root.to_s, ''),
+            exception_class: exception.class,
+            message: exception.message,
+            source: exception.backtrace
+          }
+        @exceptions << [id, exception_hash]
+      end
     end
 
     def errors
