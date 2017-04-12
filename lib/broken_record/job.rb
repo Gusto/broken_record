@@ -23,14 +23,16 @@ module BrokenRecord
                   result.add_error(
                     id: r.id,
                     error_type: 'Invalid Record',
-                    message: message
+                    message: message,
+                    errors: r.errors
                   )
                 end
               rescue Exception => e
                 result.add_error(
                   id: r.id,
                   error_type: 'Validation Exception',
-                  message: serialize_exception("    Exception for record in #{klass} id=#{r.id} ", e, compact_output)
+                  message: serialize_exception("    Exception for record in #{klass} id=#{r.id} ", e, compact_output),
+                  exception: e
                 )
               end
             end
@@ -38,7 +40,8 @@ module BrokenRecord
         rescue Exception => e
           result.add_error(
             error_type: 'Loading Exception',
-            message: serialize_exception("    Exception while trying to load models for #{klass}.", e, compact_output)
+            message: serialize_exception("    Exception while trying to load models for #{klass}.", e, compact_output),
+            exception: e
           )
         end
 

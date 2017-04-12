@@ -8,6 +8,7 @@ require 'broken_record/datadog_aggregator'
 require 'broken_record/console_aggregator'
 require 'broken_record/json_aggregator'
 require 'broken_record/multi_aggregator'
+require 'broken_record/bugsnag_aggregator'
 
 module BrokenRecord
   class Scanner
