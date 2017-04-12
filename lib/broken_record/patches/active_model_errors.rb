@@ -8,7 +8,7 @@ module BrokenRecord
         @error_mapping ||= {}
 
         caller_location = caller_locations(1,1)[0]
-        calling_method = caller_location.label
+        calling_method = caller_location.base_label
 
         _message = normalize_message(attribute, message, options)
         if calling_method == BUILT_IN_VALIDATION_METHOD
