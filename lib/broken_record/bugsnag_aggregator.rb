@@ -41,7 +41,7 @@ module BrokenRecord
         exception.class.define_singleton_method(:name) { klass.name }
         exception.set_backtrace(source)
 
-        client.notify(
+        notify(
           exception,
           context: kontext,
           ids: ids,
@@ -75,7 +75,7 @@ module BrokenRecord
         exception.class.define_singleton_method(:name) { klass.name }
         exception.set_backtrace([source])
 
-        client.notify(
+        notify(
           exception,
           context: kontext,
           ids: ids,
@@ -85,19 +85,17 @@ module BrokenRecord
       end
     end
 
-    def client
-      @client ||= begin
-        require 'bugsnag'
+    def notify(exception, options)
+      Bugsnag.notify(exceptions, default_bugsnag_options.merge(options))
+    end
 
-        Bugsnag.configure do |config|
-          config.api_key = '9c6fe81732e5f7f1039a40abc5130583'
-          config.notify_release_stages = ['development']
-          config.app_version = Date.today.to_s
-          config.app_type = 'validation'
-        end
-
-        Bugsnag
-      end
+    def default_bugsnag_options
+      @opts ||= {
+        api_key: BrokenRecord::Config.bugsnag_api_key,
+        notify_release_stages: ['development'],
+        app_version: Date.today.to_s,
+        app_type: 'validation'
+      }
     end
   end
 end
