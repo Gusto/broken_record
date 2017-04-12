@@ -86,7 +86,7 @@ module BrokenRecord
     end
 
     def notify(exception, options)
-      Bugsnag.notify(exceptions, default_bugsnag_options.merge(options))
+      Bugsnag.notify(exception, default_bugsnag_options.merge(options))
     end
 
     def default_bugsnag_options
