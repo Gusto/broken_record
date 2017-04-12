@@ -48,7 +48,7 @@ module BrokenRecord
       end
     end
 
-    MAX_RETRY = 20
+    MAX_RETRY = 100
     def drb_retry(obj)
       retry_count = 0
 
