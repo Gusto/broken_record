@@ -52,27 +52,29 @@ module BrokenRecord
 
       @aggregated_results[klass].flat_map(&:exceptions).each do |record_id, exception|
         summary[record_id] = {
-            context: "#{exception.class} - #{exception.message}",
+            context: "#{exception.class} - #{exception.backtrace.grep(Regexp.new(Rails.root.to_s))[0][/`.*'/][1..-2]}",
+            message: exception.message,
             source: exception.backtrace
           }
       end
 
       report = {}
       summary.each do |record_id, exception_mapping|
-        mapped_exception = exception_mapping[:context]
-        report[mapped_exception] ||= { record_ids: [], source: exception_mapping[:source] }
-        report[mapped_exception][:record_ids] << record_id
+        kontext = exception_mapping[:context]
+        report[kontext] ||= { record_ids: [], source: exception_mapping[:source], message: exception_mapping[:message]}
+        report[kontext][:record_ids] << record_id
       end
 
-      report.each do |message, hash|
+      report.each do |kontext, hash|
         ids = hash[:record_ids]
         source = hash[:source]
-        exception = InvalidRecordException.new("#{message} - #{ids.count} errors")
+        message = hash[:message]
+        exception = InvalidRecordException.new("#{kontext} - #{ids.count} errors")
         exception.class.define_singleton_method(:name) { klass.name }
         exception.set_backtrace(source)
 
         client.notify(exception,
-          context: message,
+          context: kontext,
           ids: ids,
           message: message,
           class: klass)
