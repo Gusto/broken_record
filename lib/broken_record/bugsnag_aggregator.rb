@@ -51,7 +51,12 @@ module BrokenRecord
       report = {}
       summary.each do |record_id, exception_mapping|
         kontext = exception_mapping[:context]
-        report[kontext] ||= { record_ids: [], source: exception_mapping[:source], message: exception_mapping[:message]}
+        report[kontext] ||= {
+          record_ids: [],
+          source: exception_mapping[:source],
+          message: exception_mapping[:message],
+          exception_class: exception_mapping[:exception_class]
+        }
         report[kontext][:record_ids] << record_id
       end
 
