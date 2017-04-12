@@ -41,6 +41,45 @@ module BrokenRecord
 
     def report_results(klass)
       super(klass)
+      report_errors(klass)
+      report_exceptions(klass)
+    end
+
+    private
+
+    def report_exceptions(klass)
+      summary = {}
+
+      @aggregated_results[klass].flat_map(&:exceptions).each do |record_id, exception|
+        summary[record_id] = {
+            context: "#{exception.class} - #{exception.message}",
+            source: exception.backtrace
+          }
+      end
+
+      report = {}
+      summary.each do |record_id, exception_mapping|
+        mapped_exception = exception_mapping[:context]
+        report[mapped_exception] ||= { record_ids: [], source: exception_mapping[:source] }
+        report[mapped_exception][:record_ids] << record_id
+      end
+
+      report.each do |message, hash|
+        ids = hash[:record_ids]
+        source = hash[:source]
+        exception = InvalidRecordException.new("#{message} - #{ids.count} errors")
+        exception.class.define_singleton_method(:name) { klass.name }
+        exception.set_backtrace(source)
+
+        client.notify(exception,
+          context: message,
+          ids: ids,
+          message: message,
+          class: klass)
+      end
+    end
+
+    def report_errors(klass)
       summary = {}
 
       @aggregated_results[klass].flat_map(&:original_errors).each do |record_id, errors|
@@ -70,8 +109,6 @@ module BrokenRecord
           class: klass)
       end
     end
-
-    private
 
     def client
       @client ||= begin
