@@ -22,7 +22,7 @@ module BrokenRecord
       @original_errors << [id, errors] if errors
       if exception
         exception_hash = {
-            context: exception.backtrace.grep(Regexp.new(Rails.root.to_s))[0].gsub(Rails.root.to_s, ''),
+            context: exception.backtrace.grep(Regexp.new(Rails.root.to_s))[0].gsub("#{Rails.root}/", ''),
             exception_class: exception.class,
             message: exception.message,
             source: exception.backtrace

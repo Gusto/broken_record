@@ -14,7 +14,7 @@ module NotAHack
       }
     else
       @error_mapping[_message] = {
-        context:  calling_method,
+        context: "##{calling_method}",
         source: "#{caller_location.path}:#{caller_location.lineno}"
       }
     end
@@ -23,16 +23,10 @@ module NotAHack
   end
 
   def error_mappings
-    values.flatten.map { |error_message| @error_mapping[error_message] }
+    values.flatten.map { |error_message| [error_message, @error_mapping[error_message]] }
   end
 end
-
-
-module ActiveModel
-  class Errors
-    prepend NotAHack
-  end
-end
+ActiveModel::Errors.send(:prepend, NotAHack)
 
 module BrokenRecord
   class InvalidRecordException < StandardError; end
@@ -70,12 +64,14 @@ module BrokenRecord
         exception.class.define_singleton_method(:name) { klass.name }
         exception.set_backtrace(source)
 
-        client.notify(exception,
+        client.notify(
+          exception,
           context: kontext,
           ids: ids,
           message: message,
           class: klass,
-          exception_class: exception_class)
+          exception_class: exception_class
+        )
       end
     end
 
@@ -88,25 +84,27 @@ module BrokenRecord
 
       report = {}
       summary.each do |record_id, error_mappings|
-        error_mappings.each do |error_mapping|
+        error_mappings.each do |error_message, error_mapping|
           mapped_error = error_mapping[:context]
-          report[mapped_error] ||= { record_ids: [], source: error_mapping[:source] }
+          report[mapped_error] ||= { record_ids: [], source: error_mapping[:source], error_message: error_message }
           report[mapped_error][:record_ids] << record_id
         end
       end
 
-      report.each do |message, hash|
+      report.each do |kontext, hash|
         ids = hash[:record_ids]
         source = hash[:source]
-        exception = InvalidRecordException.new("#{message} - #{ids.count} errors")
+        exception = InvalidRecordException.new("#{hash[:error_message]} - #{ids.count} errors")
         exception.class.define_singleton_method(:name) { klass.name }
         exception.set_backtrace([source])
 
-        client.notify(exception,
-          context: message,
+        client.notify(
+          exception,
+          context: kontext,
           ids: ids,
-          message: message,
-          class: klass)
+          message: kontext,
+          class: klass
+        )
       end
     end
 
