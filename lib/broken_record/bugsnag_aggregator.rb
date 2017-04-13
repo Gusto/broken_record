@@ -109,12 +109,16 @@ module BrokenRecord
     end
 
     def default_bugsnag_options
-      @opts ||= {
-        api_key: BrokenRecord::Config.bugsnag_api_key,
-        notify_release_stages: ['development'],
-        app_version: Date.today.to_s,
-        app_type: 'validation'
-      }
+      @opts ||= begin
+        raise 'Bugsnag API Key must be set!' unless BrokenRecord::Config.bugsnag_api_key
+        
+        {
+          api_key: BrokenRecord::Config.bugsnag_api_key,
+          notify_release_stages: ['development'],
+          app_version: Date.today.to_s,
+          app_type: 'validation'
+        }
+      end
     end
   end
 end
