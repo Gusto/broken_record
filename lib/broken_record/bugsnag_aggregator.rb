@@ -1,5 +1,3 @@
-require 'broken_record/patches/active_model_errors'
-
 module BrokenRecord
   class InvalidRecordException < StandardError; end
 
@@ -8,6 +6,7 @@ module BrokenRecord
     MAX_IDS = 500
 
     def report_job_start
+      patch_active_record_errors!
       configure_bugsnag!
       notify_deploy
     end
@@ -19,7 +18,6 @@ module BrokenRecord
     end
 
     private
-
     def report_exceptions(klass)
       summary = {}
 
@@ -116,6 +114,10 @@ module BrokenRecord
         c.app_type = 'validation'
         c.delivery_method = :synchronous
       end
+    end
+
+    def patch_active_record_errors!
+      require 'broken_record/patches/active_model_errors'
     end
   end
 end
