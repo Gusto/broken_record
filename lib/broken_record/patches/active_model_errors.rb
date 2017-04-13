@@ -7,24 +7,24 @@ module BrokenRecord
         # Track the source location
         @error_mapping ||= {}
         _message = normalize_message(attribute, message, options)
+        caller_location = caller_locations(1,1)[0]
+        calling_method = caller_location.base_label
 
         if calling_method == BUILT_IN_VALIDATION_METHOD
           validators = @base._validators[attribute]
 
-          caller_location = if validators&.count == 1
+          validator_caller_location = if validators&.count == 1
             validators[0].allocation_caller_locations.find { |location| location.to_s =~ Regexp.new(Rails.root.to_s) }
           end
 
           # if we cannot location exact validator, we are using normal backtrace
-          caller_location ||= caller_locations(1,1)[0]
+          caller_location = validator_caller_location || caller_location
 
           @error_mapping[_message] = {
             context:  _message,
             source: "#{caller_location.path}:#{caller_location.lineno}"
           }
         else
-          caller_location = caller_locations(1,1)[0]
-          calling_method = caller_location.base_label
 
           @error_mapping[_message] = {
             context: "##{calling_method}",
