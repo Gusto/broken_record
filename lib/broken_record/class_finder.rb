@@ -24,7 +24,10 @@ module BrokenRecord
         objects.add klass.base_class unless classes_to_skip.include?(klass.to_s)
       end
 
-      objects.sort_by(&:name)
+      prioritized_classes = BrokenRecord::Config.prioritized_models
+        .map { |klass| klass.is_a?(Class) ? Class : klass.constantize }
+        .select { |klass| objects.delete?(klass) }
+      prioritized_classes + objects.sort_by(&:name)
     end
   end
 end
