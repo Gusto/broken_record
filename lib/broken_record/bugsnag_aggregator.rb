@@ -44,6 +44,7 @@ module BrokenRecord
         notify(
           exception,
           context: kontext,
+          grouping_hash: kontext,
           ids: ids,
           message: message,
           class: klass,
@@ -78,6 +79,7 @@ module BrokenRecord
         notify(
           exception,
           context: kontext,
+          grouping_hash: kontext,
           ids: ids,
           message: kontext,
           class: klass
