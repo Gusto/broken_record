@@ -5,6 +5,8 @@ module BrokenRecord
 
   class BugsnagAggregator < ResultAggregator
 
+    MAX_IDS = 500
+
     def report_results(klass)
       super(klass)
       report_errors(klass)
@@ -44,8 +46,9 @@ module BrokenRecord
         notify(
           exception,
           context: kontext,
-          grouping_hash: kontext,
-          ids: ids,
+          grouping_hash: "#{klass.name}-#{kontext}",
+          ids: ids.first(MAX_IDS).join(', '),
+          error_count: ids.count,
           message: message,
           class: klass,
           exception_class: exception_class
@@ -79,8 +82,9 @@ module BrokenRecord
         notify(
           exception,
           context: kontext,
-          grouping_hash: kontext,
-          ids: ids,
+          grouping_hash: "#{klass.name}-#{kontext}",
+          ids: ids.first(MAX_IDS).join(', '),
+          error_count: ids.count,
           message: kontext,
           class: klass
         )
