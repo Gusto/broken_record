@@ -11,11 +11,11 @@ module BrokenRecord
         calling_method = caller_location.base_label
 
         if calling_method == BUILT_IN_VALIDATION_METHOD
-          validators = @base._validators[attribute]
-
-          validator_caller_location = if validators&.count == 1
-            validators[0].allocation_caller_locations.find { |location| location.to_s =~ Regexp.new(Rails.root.to_s) }
+          validator = @base._validators[attribute].find do |validator|
+            caller.any? { |trace| trace.include? validator.validator_source_path }
           end
+
+          validator_caller_location = validator&.allocation_caller_locations&.find { |location| location.to_s =~ Regexp.new(Rails.root.to_s) }
 
           # if we cannot location exact validator, we are using normal backtrace
           caller_location = validator_caller_location || caller_location
