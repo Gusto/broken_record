@@ -1,3 +1,3 @@
 module BrokenRecord
-  VERSION = '0.2.14.pre'
+  VERSION = '0.2.15.pre'
 end
