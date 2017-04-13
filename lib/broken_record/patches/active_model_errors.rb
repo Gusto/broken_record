@@ -6,17 +6,26 @@ module BrokenRecord
       def add(attribute, message = :invalid, options = {})
         # Track the source location
         @error_mapping ||= {}
-
-        caller_location = caller_locations(1,1)[0]
-        calling_method = caller_location.base_label
-
         _message = normalize_message(attribute, message, options)
+
         if calling_method == BUILT_IN_VALIDATION_METHOD
+          validators = @base._validators[attribute]
+
+          caller_location = if validators&.count == 1
+            validators[0].allocation_caller_locations.find { |location| location.to_s =~ Regexp.new(Rails.root.to_s) }
+          end
+
+          # if we cannot location exact validator, we are using normal backtrace
+          caller_location ||= caller_locations(1,1)[0]
+
           @error_mapping[_message] = {
             context:  _message,
-            source: "#{$:.grep(/broken_record/).first}/broken_record/best_practices.md:1"
+            source: "#{caller_location.path}:#{caller_location.lineno}"
           }
         else
+          caller_location = caller_locations(1,1)[0]
+          calling_method = caller_location.base_label
+
           @error_mapping[_message] = {
             context: "##{calling_method}",
             source: "#{caller_location.path}:#{caller_location.lineno}"
