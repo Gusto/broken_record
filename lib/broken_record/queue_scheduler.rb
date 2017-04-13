@@ -1,4 +1,5 @@
 require 'drb'
+require 'benchmark'
 
 module BrokenRecord
   class QueueScheduler < JobScheduler
@@ -14,27 +15,24 @@ module BrokenRecord
       def pop(*args)
         @queue.pop(*args)
       rescue DRb::DRbConnError
-        Parallel::Stop
+        nil
       end
     end
 
     def run
-      finish_callback = proc do |_, _, result|
-        puts "Executing finish callback"
-        if result.is_a? BrokenRecord::JobResult
-          result_aggregator.add_result(result)
-          result_aggregator.report_results(result.job.klass)
-        end
-      end
-
       result_aggregator.report_job_start
 
-      # Don't run in parallel, just utilize the callback functionality of the parallel gem
-      Parallel.each(queue, { finish: finish_callback, in_processes: 0 }) do |klass|
+      while klass = queue.pop
         puts "Processing #{klass}"
-        result = Job.new(klass: klass).perform
-        puts "Finished processing #{klass}"
-        result
+        bm = Benchmark.measure do
+          result = Job.new(klass: klass).perform
+          if result.is_a? BrokenRecord::JobResult
+            puts "Sending #{result.job.klass} results to Bugsnag"
+            result_aggregator.add_result(result)
+            result_aggregator.report_results(result.job.klass)
+          end
+        end
+        puts "Finished processing #{klass} in #{bm.real.round(2)}"
       end
     end
 

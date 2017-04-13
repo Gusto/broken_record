@@ -107,6 +107,7 @@ module BrokenRecord
 
     def configure_bugsnag!
       raise 'Bugsnag API Key must be set!' unless BrokenRecord::Config.bugsnag_api_key
+
       Bugsnag.configure do |c|
         c.notify_release_stages = ['development']
         c.api_key = BrokenRecord::Config.bugsnag_api_key
