@@ -7,6 +7,10 @@ module BrokenRecord
 
     MAX_IDS = 500
 
+    def report_job_start
+      notify_deploy
+    end
+
     def report_results(klass)
       super(klass)
       report_errors(klass)
@@ -93,6 +97,15 @@ module BrokenRecord
 
     def notify(exception, options)
       Bugsnag.notify(exception, default_bugsnag_options.merge(options))
+    end
+
+    def notify_deploy
+      Bugsnag::Deploy.notify(
+        default_bugsnag_options.merge(
+          repository: ENV['BROKEN_RECORD_REPOSITORY'],
+          branch: ENV['BROKEN_RECORD_BRANCH']
+        )
+      )
     end
 
     def default_bugsnag_options

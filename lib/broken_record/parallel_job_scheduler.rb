@@ -15,6 +15,8 @@ module BrokenRecord
         end
       end
 
+      result_aggregator.report_job_start
+
       Parallel.each(jobs, { finish: finish_callback }) do |job|
         ActiveRecord::Base.connection.reconnect!
         BrokenRecord::Config.after_fork_callbacks.each { |callback| callback.call }

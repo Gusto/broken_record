@@ -10,6 +10,8 @@ module BrokenRecord
         end
       end
 
+      result_aggregator.report_job_start
+
       # Don't run in parallel, just utilize the callback functionality of the parallel gem
       Parallel.each(jobs, { finish: finish_callback, in_processes: 0 }) do |job|
         job.perform
