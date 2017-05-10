@@ -2,7 +2,6 @@ require 'broken_record/patches/active_model_validators'
 require "broken_record/version"
 require "broken_record/config"
 require "broken_record/scanner"
-require "broken_record/server"
 require "broken_record/railtie" if defined? Rails::Railtie
 
 module BrokenRecord
