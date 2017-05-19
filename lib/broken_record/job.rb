@@ -17,7 +17,7 @@ module BrokenRecord
           record_ids.each_slice(batch_size) do |id_batch|
             models_with_includes.where("#{klass.table_name}.#{primary_key}" => id_batch).each do |r|
               begin
-                if !r.valid?
+                if !r.valid?([:update, :broken_record])
                   message = "    Invalid record in #{klass} id=#{r.id}."
                   r.errors.each { |attr,msg| message <<  "\n        #{attr} - #{msg}" } unless compact_output
                   result.add_error(
