@@ -20,8 +20,9 @@ module BrokenRecord
 
     private
     def jobs
-      classes.map do |klass|
-        Job.new(klass: klass, index: options[:job_index], parallelization: options[:jobs_total])
+      jobs = []
+      classes.each.with_index do |klass, i|
+        jobs << Job.new(klass: klass) if i % options[:jobs_total] == options[:job_index]
       end
     end
   end

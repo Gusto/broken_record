@@ -2,12 +2,10 @@ require 'broken_record/job_result'
 
 module BrokenRecord
   class Job
-    attr_accessor :klass, :index, :parallelization
+    attr_accessor :klass
 
-    def initialize(klass:, index: 0, parallelization: 1)
+    def initialize(klass:)
       self.klass = klass
-      self.index = index
-      self.parallelization = parallelization
     end
 
     def perform
@@ -63,9 +61,7 @@ module BrokenRecord
     end
 
     def record_ids
-      records_per_group = (models_with_conditions.count / parallelization.to_f).ceil
-      scope = models_with_conditions.offset(records_per_group * index)
-      scope.limit(records_per_group).pluck(primary_key)
+      scope.pluck(primary_key)
     end
 
     def models_with_includes
