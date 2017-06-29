@@ -24,6 +24,7 @@ module BrokenRecord
       classes.each.with_index do |klass, i|
         jobs << Job.new(klass: klass) if i % options[:jobs_total] == options[:job_index]
       end
+      jobs
     end
   end
 end
