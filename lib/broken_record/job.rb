@@ -61,7 +61,7 @@ module BrokenRecord
     end
 
     def record_ids
-      scope.pluck(primary_key)
+      models_with_conditions.pluck(primary_key)
     end
 
     def models_with_includes
