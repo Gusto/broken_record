@@ -1,24 +1,20 @@
 module BrokenRecord
   class ResultAggregator
     def initialize
-      @total_errors = 0
       @aggregated_results = {}
     end
 
     def add_result(result)
-      @aggregated_results[result.job.klass] ||= []
-      @aggregated_results[result.job.klass] << result
-    end
-
-    def count(klass)
-      @aggregated_results[klass].count
-    end
-
-    def report_results(klass)
-      @total_errors += all_errors(klass).count
+      job_class = result.job.klass
+      @aggregated_results[job_class] ||= []
+      @aggregated_results[job_class] << result
     end
 
     def report_job_start
+      # No-op: Define in subclass
+    end
+
+    def report_results(klass)
       # No-op: Define in subclass
     end
 
@@ -27,10 +23,26 @@ module BrokenRecord
     end
 
     def success?
-      @total_errors == 0
+      total_error_count == 0
+    end
+
+    def count(klass)
+      results_for_class(klass).count
     end
 
     private
+
+    def total_error_count
+      all_errors.count
+    end
+
+    def all_error_ids_for(klass)
+      results_for_class(klass).flat_map(&:all_errors).map(&:id).compact
+    end
+
+    def invalid_model_errors_for(klass)
+      results_for_class(klass).flat_map(&:invalid_model_errors)
+    end
 
     def all_classes
       @aggregated_results.keys
@@ -40,22 +52,26 @@ module BrokenRecord
       @aggregated_results.values.flatten
     end
 
-    def all_errors(klass)
-       @aggregated_results[klass].flat_map(&:errors)
+    def all_errors
+      all_results.flat_map(&:all_errors)
     end
 
-    def all_error_ids(klass)
-      @aggregated_results[klass].flat_map(&:error_ids)
+    def all_errors_for(klass)
+      results_for_class(klass).flat_map(&:all_errors)
     end
 
     def duration(klass)
-      start_time = @aggregated_results[klass].map(&:start_time).min
-      end_time = @aggregated_results[klass].map(&:end_time).max
+      start_time = results_for_class(klass).map(&:start_time).min
+      end_time = results_for_class(klass).map(&:end_time).max
       (end_time - start_time).round(3)
     end
 
     def app_name
       Rails.application.class.parent_name
+    end
+
+    def results_for_class(klass)
+      @aggregated_results[klass]
     end
   end
 end
