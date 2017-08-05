@@ -1,12 +1,13 @@
 module BrokenRecord
   class JobResult
-    attr_reader :start_time, :end_time, :job, :normalized_errors, :original_errors, :exceptions
+    attr_reader :start_time, :end_time, :job, :all_errors, :exception_errors, :invalid_model_errors
 
     def initialize(job)
       @job = job
-      @normalized_errors = []
+      @all_errors = []
       @original_errors = []
-      @exceptions = []
+      @exception_errors = []
+      @invalid_model_errors = []
     end
 
     def start_timer
@@ -17,30 +18,17 @@ module BrokenRecord
       @end_time = Time.now
     end
 
-    def add_error(id: nil, error_type:, message:, errors: nil, exception: nil)
-      @normalized_errors << { id: id, message: message, error_type: error_type }
-      @original_errors << [id, errors] if errors
-      if exception
-        exception_hash = {
-          context: exception.backtrace.grep(Regexp.new(Rails.root.to_s))[0].gsub("#{Rails.root}/", ''),
-          exception_class: exception.is_a?(Class) ? exception : exception.class,
-          message: exception.message,
-          source: exception.backtrace
-        }
-        @exceptions << [id, exception_hash]
+    def add_error(error)
+      @all_errors << error
+      if error.is_a? BrokenRecord::ReportableError::InvalidModelError
+        @invalid_model_errors << error
+      elsif error.is_a? BrokenRecord::ReportableError::ModelValidationExceptionError
+        @exception_errors << error
+      elsif error.is_a? BrokenRecord::ReportableError::ValidatorExceptionError
+        @exception_errors << error
+      else
+        raise "Job result does not support error: #{error.class.to_s}"
       end
-    end
-
-    def errors
-      @normalized_errors.map do |error|
-        "#{error[:message].red}\n"
-      end
-    end
-
-    def error_ids
-      @normalized_errors.map do |error|
-        error[:id]
-      end.compact
     end
   end
 end
