@@ -26,7 +26,7 @@ module BrokenRecord
       else
         slack_params = @options.merge({
           title: snippet_title,
-          initial_comment: ':heavy_exclamation_mark: @benefitsvm: The validation job failed!',
+          initial_comment: ':heavy_exclamation_mark: The validation job failed!',
           icon_emoji: ':x:',
           channels: @options[:channel]
         })

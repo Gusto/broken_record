@@ -3,8 +3,8 @@ require 'colorize'
 
 module BrokenRecord
   class SlackAggregator < ResultAggregator
-    def report_final_results
-      notifier = SlackNotifier.new({
+    def report_final_results(notifier: nil)
+      notifier ||= SlackNotifier.new({
         icon_emoji: success? ? ':white_check_mark:' : ':x:',
         username: "#{app_name} ValidationMaster"
       })
@@ -19,7 +19,7 @@ module BrokenRecord
       if success?
         notifier.send!("\nAll models validated successfully.")
       else
-        notifier.send!("\n#{@total_errors} errors were found while running validations.")
+        notifier.send!("\n#{total_error_count} errors were found while running validations.")
       end
     end
 
