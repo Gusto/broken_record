@@ -1,37 +1,38 @@
 module BrokenRecord
   class ConsoleAggregator < ResultAggregator
-    def report_results(klass)
+    def report_results(klass, logger: $stdout)
       super(klass)
 
       result_count = BrokenRecord::Config.default_result_count
 
-      all_errors = all_errors(klass)
-      all_error_ids = all_error_ids(klass)
+      class_errors = all_errors_for(klass)
+      all_error_ids_for = all_error_ids_for(klass)
       duration = duration(klass)
 
-      print "Validating model #{klass}... ".ljust(70)
-      if all_errors.empty?
-        print '[PASS]'.green
-      else
-        print '[FAIL]'.red
-      end
-      print "  (#{duration}s)\n"
+      formatted_errors = class_errors.map(&:message).map{ |message| message.red }.join("\n")
 
-      if all_errors.any?
-        puts "#{all_errors.length} errors were found while running validations for #{klass}\n"
-        puts "Invalid ids: #{all_error_ids.inspect}"
-        puts "Validation errors on first #{result_count} invalid models"
-        puts all_errors.join
+      logger.print "Running validations for #{klass}... ".ljust(70)
+      if class_errors.empty?
+        logger.print '[PASS]'.green
+      else
+        logger.print '[FAIL]'.red
+      end
+      logger.print "  (#{duration}s)\n"
+
+      if class_errors.any?
+        logger.puts "#{class_errors.length} errors were found while running validations for #{klass}\n"
+        logger.puts "Invalid ids: #{all_error_ids_for.inspect}"
+        logger.puts "Validation errors on first #{result_count} invalid models"
+        logger.puts formatted_errors
       end
     end
 
-    def report_final_results
-      if @total_errors == 0
-        puts "\nAll models validated successfully.".green
+    def report_final_results(logger: STDOUT)
+      if total_error_count == 0
+        logger.puts "\nAll models validated successfully.".green
       else
-        puts "\n#{@total_errors} errors were found while running validations.".red
+        logger.puts "\n#{total_error_count} errors were found while running validations.".red
       end
     end
-
   end
 end
