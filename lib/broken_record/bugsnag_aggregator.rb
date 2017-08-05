@@ -1,4 +1,6 @@
 module BrokenRecord
+  require 'bugsnag'
+
   class InvalidRecordException < StandardError; end
 
   class BugsnagAggregator < ResultAggregator
@@ -18,21 +20,21 @@ module BrokenRecord
     end
 
     private
+
     def report_exceptions(klass)
       summary = {}
-
-      @aggregated_results[klass].flat_map(&:exceptions).each do |record_id, exception_hash|
-        summary[record_id] = exception_hash
+      @aggregated_results[klass].flat_map(&:exception_errors).each do |exception_error|
+        summary[exception_error.id] = exception_error
       end
 
       report = {}
-      summary.each do |record_id, exception_mapping|
-        kontext = exception_mapping[:context]
+      summary.each do |record_id, exception_error|
+        kontext = exception_error.exception_context
         report[kontext] ||= {
           record_ids: [],
-          source: exception_mapping[:source],
-          message: exception_mapping[:message],
-          exception_class: exception_mapping[:exception_class]
+          source: exception_error.source,
+          message: exception_error.message,
+          exception_class: exception_error.exception_class
         }
         report[kontext][:record_ids] << record_id
       end
@@ -43,7 +45,7 @@ module BrokenRecord
         message = hash[:message]
         exception_class = hash[:exception_class]
         exception = InvalidRecordException.new("#{exception_class} - #{message} - #{ids.count} errors")
-        exception.class.define_singleton_method(:name) { klass.name }
+        exception.class.define_singleton_method(:name) { exception_class.name }
         exception.set_backtrace(source)
 
         notify(
@@ -62,8 +64,8 @@ module BrokenRecord
     def report_errors(klass)
       summary = {}
 
-      @aggregated_results[klass].flat_map(&:original_errors).each do |record_id, errors|
-        summary[record_id] = errors.error_mappings
+      invalid_model_errors_for(klass).each do |invalid_model_error|
+        summary[invalid_model_error.id] = invalid_model_error.model_errors.error_mappings
       end
 
       report = {}
