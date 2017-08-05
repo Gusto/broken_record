@@ -24,7 +24,7 @@ module BrokenRecord
     private
 
     def jobs
-      classes.map { |klass| Job.new(klass: klass) }
+      classes.map { |klass| job_type.new(klass: klass) }
     end
   end
 end
