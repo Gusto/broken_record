@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module BrokenRecord
   describe JsonAggregator do
     let(:json_aggregator) { JsonAggregator.new }

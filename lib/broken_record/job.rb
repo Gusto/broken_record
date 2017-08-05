@@ -1,5 +1,3 @@
-require 'broken_record/job_result'
-
 module BrokenRecord
   class Job
     attr_accessor :klass

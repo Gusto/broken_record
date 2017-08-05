@@ -9,6 +9,7 @@ module BrokenRecord
 
     self.before_scan_callbacks = []
     self.after_fork_callbacks = []
+    self.classes_to_skip = []
     self.default_scopes = {}
     self.model_includes = {}
     self.model_conditions = {}

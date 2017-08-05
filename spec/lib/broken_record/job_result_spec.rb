@@ -1,5 +1,3 @@
-require 'spec_helper'
-
 module BrokenRecord
   describe JobResult do
     let(:start_time) { Time.new 2015/01/01 }

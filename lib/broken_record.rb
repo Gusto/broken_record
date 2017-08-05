@@ -3,6 +3,13 @@ require "broken_record/version"
 require "broken_record/config"
 require "broken_record/scanner"
 require "broken_record/railtie" if defined? Rails::Railtie
+require "broken_record/job_result"
+require "broken_record/reportable_errors/factory"
+require "broken_record/reportable_errors/base_error"
+require "broken_record/reportable_errors/invalid_model_error"
+require "broken_record/reportable_errors/helpers/exception_helper"
+require "broken_record/reportable_errors/model_validation_exception_error"
+require "broken_record/reportable_errors/validator_exception_error"
 
 module BrokenRecord
   extend self
@@ -10,14 +17,10 @@ module BrokenRecord
   def configure
     yield BrokenRecord::Config
 
-    unless BrokenRecord::Config.default_scopes.blank?
+    unless BrokenRecord::Config.default_scopes.nil? || BrokenRecord::Config.default_scopes.count == 0
       ActiveSupport::Deprecation.warn("default_scopes are deprecated and will be removed in the next major version.")
       BrokenRecord::Config.model_includes = BrokenRecord::Config.default_scopes
       BrokenRecord::Config.model_conditions = BrokenRecord::Config.default_scopes
     end
   end
-end
-
-BrokenRecord.configure do |config|
-  config.classes_to_skip = []
 end
