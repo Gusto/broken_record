@@ -28,13 +28,11 @@ module BrokenRecord
       console_aggregator = BrokenRecord::ConsoleAggregator.new
       all_results.each{ |result| console_aggregator.add_result(result) }
       # Store the output of the console aggregator into a StringIO object
-      $stdout = StringIO.new
-      snippet = all_classes.each { |klass| console_aggregator.report_results(klass) }
-      snippet = $stdout.string
-      $stdout = STDOUT
+      validation_logger = StringIO.new
+      snippet = all_classes.each { |klass| console_aggregator.report_results(klass, logger: validation_logger) }
 
       if !success?
-        notifier.send_snippet!(snippet.uncolorize, 'Model Validation Failures')
+        notifier.send_snippet!(validation_logger.string.uncolorize, 'Model Validation Failures')
       end
     end
   end

@@ -1,7 +1,6 @@
 module BrokenRecord
   describe SlackAggregator do
     let(:slack_aggregator) { SlackAggregator.new }
-    let(:logger) { StringIO.new }
     let(:slack_notifier) { instance_double(SlackNotifier, send!: nil, send_snippet!: nil) }
     let(:aggregator) { slack_aggregator }
 
@@ -9,7 +8,7 @@ module BrokenRecord
       subject { slack_aggregator.report_final_results(notifier: slack_notifier) }
 
       context 'no errors' do
-        it 'outputs the correct validation data to the logger' do
+        it 'outputs the correct validation data to the summary' do
           expect(slack_notifier).to receive(:send!).with("\nAll models validated successfully.")
           expect(slack_notifier).to_not receive(:send_snippet!)
           subject
@@ -18,7 +17,7 @@ module BrokenRecord
 
       context 'errors' do
         include_context 'aggregator setup'
-        it 'outputs the correct validation data to the logger' do
+        it 'outputs the correct validation data to the snippet' do
           expected_snippet = <<-eos
 Running validations for Object...                                     [FAIL]  (25.0s)
 2 errors were found while running validations for Object

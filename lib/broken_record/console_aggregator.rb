@@ -27,7 +27,7 @@ module BrokenRecord
       end
     end
 
-    def report_final_results(logger: STDOUT)
+    def report_final_results(logger: $stdout)
       if total_error_count == 0
         logger.puts "\nAll models validated successfully.".green
       else
