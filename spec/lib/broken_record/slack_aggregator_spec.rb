@@ -22,13 +22,13 @@ module BrokenRecord
 Running validations for Object...                                     [FAIL]  (25.0s)
 2 errors were found while running validations for Object
 Invalid ids: [1, 2]
-Validation errors on first 5 invalid models
+Validation errors on first 2 invalid models
 invalid Object model 1
 invalid Object model 2
 Running validations for String...                                     [FAIL]  (0.234s)
 3 errors were found while running validations for String
 Invalid ids: [3, 4, 5]
-Validation errors on first 5 invalid models
+Validation errors on first 3 invalid models
 invalid String model 3
 invalid String model 4
 invalid String model 5

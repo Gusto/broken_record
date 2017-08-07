@@ -9,18 +9,42 @@ module BrokenRecord
       include_context 'aggregator setup'
       let(:klass) { String }
       subject { console_aggregator.report_results(klass, logger: logger) }
-      it 'outputs the correct validation data to the logger' do
-        subject
-        expected = <<-eos
+
+      context 'number of invalid results exceeds the configured default_result_count' do
+        before do
+          allow(BrokenRecord::Config).to receive(:default_result_count).and_return(5)
+        end
+        it 'outputs the correct validation data to the logger' do
+          subject
+          expected = <<-eos
 Running validations for String...                                     \e[0;31;49m[FAIL]\e[0m  (0.234s)
 3 errors were found while running validations for String
 Invalid ids: [3, 4, 5]
-Validation errors on first 5 invalid models
+Validation errors on first 3 invalid models
 \e[0;31;49minvalid String model 3\e[0m
 \e[0;31;49minvalid String model 4\e[0m
 \e[0;31;49minvalid String model 5\e[0m
 eos
-        expect(logger.string).to eq expected
+          expect(logger.string).to eq expected
+        end
+      end
+
+      context 'number of invalid results is less than the configured default_result_count' do
+        before do
+          allow(BrokenRecord::Config).to receive(:default_result_count).and_return(2)
+        end
+        it 'outputs the correct validation data to the logger' do
+          subject
+          expected = <<-eos
+Running validations for String...                                     \e[0;31;49m[FAIL]\e[0m  (0.234s)
+3 errors were found while running validations for String
+Invalid ids: [3, 4, 5]
+Validation errors on first 2 invalid models
+\e[0;31;49minvalid String model 3\e[0m
+\e[0;31;49minvalid String model 4\e[0m
+eos
+          expect(logger.string).to eq expected
+        end
       end
     end
 
