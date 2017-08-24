@@ -1,4 +1,4 @@
-module BrokenRecord
+module BrokenRecord::Aggregators
   describe ConsoleAggregator do
     let(:console_aggregator) { ConsoleAggregator.new }
     let(:logger) { StringIO.new }

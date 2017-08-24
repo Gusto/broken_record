@@ -1,7 +1,7 @@
-module BrokenRecord
+module BrokenRecord::Aggregators
   describe SlackAggregator do
     let(:slack_aggregator) { SlackAggregator.new }
-    let(:slack_notifier) { instance_double(SlackNotifier, send!: nil, send_snippet!: nil) }
+    let(:slack_notifier) { instance_double(BrokenRecord::SlackNotifier, send!: nil, send_snippet!: nil) }
     let(:aggregator) { slack_aggregator }
 
     describe '#report_final_results' do

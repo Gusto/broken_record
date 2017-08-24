@@ -1,4 +1,4 @@
-module BrokenRecord
+module BrokenRecord::Aggregators
   describe BugsnagAggregator do
     let(:bugsnag_aggregator) { BugsnagAggregator.new }
     let(:logger) { StringIO.new }

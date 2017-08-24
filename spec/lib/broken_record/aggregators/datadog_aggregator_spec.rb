@@ -1,4 +1,4 @@
-module BrokenRecord
+module BrokenRecord::Aggregators
   describe DatadogAggregator do
     let(:datadog_aggregator) { DatadogAggregator.new }
     let(:client) { double('Dogapi::Client', emit_points: nil) }

@@ -1,4 +1,4 @@
-module BrokenRecord
+module BrokenRecord::Aggregators
   describe JsonAggregator do
     let(:json_aggregator) { JsonAggregator.new }
 

@@ -1,4 +1,4 @@
-module BrokenRecord
+module BrokenRecord::Aggregators
   describe ResultAggregator do
     let(:result_aggregator) { ResultAggregator.new }
 
