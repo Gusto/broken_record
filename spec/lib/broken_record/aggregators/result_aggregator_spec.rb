@@ -15,7 +15,7 @@ module BrokenRecord::Aggregators
       it 'stores a job result' do
         expect(job_result).to receive_message_chain(:job, :klass => :blah)
         subject
-        expected_aggregated_results = { blah: [job_result] }
+        expected_aggregated_results = { blah: job_result }
         expect(result_aggregator.instance_variable_get(:@aggregated_results)).to eq(expected_aggregated_results)
       end
     end
@@ -47,8 +47,8 @@ module BrokenRecord::Aggregators
       let(:job_result) { instance_double(BrokenRecord::JobResult)}
 
       before do
-        allow(job_result).to receive(:all_errors) { ['error'] }
-        expected_aggregated_results = { blah: [job_result] }
+        allow(job_result).to receive(:errors) { ['error'] }
+        expected_aggregated_results = { blah: job_result }
         result_aggregator.instance_variable_set(:@aggregated_results, expected_aggregated_results)
       end
 
@@ -61,8 +61,8 @@ module BrokenRecord::Aggregators
         let(:job_result) { instance_double(BrokenRecord::JobResult)}
 
         before do
-          allow(job_result).to receive(:all_errors) { [] }
-          expected_aggregated_results = { blah: [job_result] }
+          allow(job_result).to receive(:errors) { [] }
+          expected_aggregated_results = { blah: job_result }
           result_aggregator.instance_variable_set(:@aggregated_results, expected_aggregated_results)
         end
 
@@ -73,8 +73,8 @@ module BrokenRecord::Aggregators
         let(:job_result) { instance_double(BrokenRecord::JobResult)}
 
         before do
-          allow(job_result).to receive(:all_errors) { ['error'] }
-          expected_aggregated_results = { blah: [job_result] }
+          allow(job_result).to receive(:errors) { ['error'] }
+          expected_aggregated_results = { blah: job_result }
           result_aggregator.instance_variable_set(:@aggregated_results, expected_aggregated_results)
         end
 

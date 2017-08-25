@@ -2,9 +2,9 @@ module BrokenRecord
   module Aggregators
     class MultiAggregator
 
-      def initialize()
-        @aggregators = BrokenRecord::Config.multi_aggregator_classes.map do |aggregator_class|
-          aggregator_class.constantize.new
+      def initialize
+        @aggregators = BrokenRecord::Config.multi_aggregators.map do |aggregator_symbol|
+          BrokenRecord::Config.get_configured_class(aggregator_symbol, :aggregator).new
         end
       end
 

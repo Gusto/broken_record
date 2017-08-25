@@ -1,11 +1,11 @@
-require 'broken_record/slack_notifier'
+require 'broken_record/services/slack_notifier'
 require 'colorize'
 
 module BrokenRecord
   module Aggregators
     class SlackAggregator < ResultAggregator
       def report_final_results(notifier: nil)
-        notifier ||= BrokenRecord::SlackNotifier.new({
+        notifier ||= BrokenRecord::Services::SlackNotifier.new({
           icon_emoji: success? ? ':white_check_mark:' : ':x:',
           username: "#{app_name} ValidationMaster"
         })

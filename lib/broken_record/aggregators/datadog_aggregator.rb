@@ -11,7 +11,7 @@ module BrokenRecord
         super(klass)
 
         tags = default_tags.merge(class: klass.name.underscore)
-        client.emit_points('validation.errors.count', [[@timestamp, all_errors_for(klass).count]], tags: tags)
+        client.emit_points('validation.errors.count', [[@timestamp, errors_for(klass).count]], tags: tags)
         client.emit_points('validation.time', [[@timestamp, duration(klass)]], tags: tags)
       end
 

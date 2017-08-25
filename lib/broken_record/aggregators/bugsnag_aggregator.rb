@@ -17,86 +17,38 @@ module BrokenRecord
 
       def report_results(klass)
         super(klass)
-        report_errors(klass)
-        report_exceptions(klass)
-      end
 
-      private
+        klass_summary = {}
 
-      def report_exceptions(klass)
-        summary = {}
-        @aggregated_results[klass].flat_map(&:exception_errors).each do |exception_error|
-          summary[exception_error.id] = exception_error
-        end
-
-        report = {}
-        summary.each do |record_id, exception_error|
-          kontext = exception_error.exception_context
-          report[kontext] ||= {
+        @aggregated_results[klass].errors.each do |reportable_error|
+          klass_summary[reportable_error.message] ||= {
             record_ids: [],
-            source: exception_error.source,
-            message: exception_error.message,
-            exception_class: exception_error.exception_class
+            context: reportable_error.error_context,
+            stacktrace: reportable_error.stacktrace
           }
-          report[kontext][:record_ids] << record_id
+
+          klass_summary[reportable_error.message][:record_ids] << reportable_error.id
         end
 
-        report.each do |kontext, hash|
-          ids = hash[:record_ids]
-          source = hash[:source]
-          message = hash[:message]
-          exception_class = hash[:exception_class]
-          exception = InvalidRecordException.new("#{exception_class} - #{message} - #{ids.count} errors")
-          exception.class.define_singleton_method(:name) { exception_class.name }
-          exception.set_backtrace(source)
-
-          notify(
-            exception,
-            context: kontext,
-            grouping_hash: "#{klass.name}-#{kontext}",
-            ids: ids.first(MAX_IDS).join(', '),
-            error_count: ids.count,
-            message: message,
-            class: klass,
-            exception_class: exception_class
-          )
-        end
-      end
-
-      def report_errors(klass)
-        summary = {}
-
-        invalid_model_errors_for(klass).each do |invalid_model_error|
-          summary[invalid_model_error.id] = invalid_model_error.model_errors.error_mappings
-        end
-
-        report = {}
-        summary.each do |record_id, error_mappings|
-          error_mappings.each do |error_message, error_mapping|
-            mapped_error = error_mapping[:context]
-            report[mapped_error] ||= { record_ids: [], source: error_mapping[:source], error_message: error_message }
-            report[mapped_error][:record_ids] << record_id
-          end
-        end
-
-        report.each do |kontext, hash|
-          ids = hash[:record_ids]
-          source = hash[:source]
-          exception = InvalidRecordException.new("#{hash[:error_message]} - #{ids.count} errors")
+        klass_summary.each do |error_message, error_data|
+          ids = error_data[:record_ids]
+          exception = InvalidRecordException.new("#{error_message} - #{ids.count} errors")
           exception.class.define_singleton_method(:name) { klass.name }
-          exception.set_backtrace([source])
+          exception.set_backtrace(error_data[:stacktrace])
 
           notify(
             exception,
-            context: kontext,
-            grouping_hash: "#{klass.name}-#{kontext}",
+            context: error_data[:context],
+            grouping_hash: "#{klass.name}-#{error_data[:stacktrace]}",
             ids: ids.first(MAX_IDS).join(', '),
             error_count: ids.count,
-            message: kontext,
+            message: error_message,
             class: klass
           )
         end
       end
+
+      private
 
       def notify(exception, options)
         Bugsnag.notify(exception, options)

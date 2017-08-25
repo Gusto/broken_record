@@ -7,8 +7,10 @@ module BrokenRecord
 
       def add_result(result)
         job_class = result.job.klass
-        @aggregated_results[job_class] ||= []
-        @aggregated_results[job_class] << result
+        if @aggregated_results[job_class]
+          raise 'Why are we adding multiple results for a single class?'
+        end
+        @aggregated_results[job_class] = result
       end
 
       def report_job_start
@@ -28,21 +30,17 @@ module BrokenRecord
       end
 
       def count(klass)
-        results_for_class(klass).count
+        results_for_class(klass).errors.count
       end
 
       private
 
       def total_error_count
-        all_errors.count
+        errors.count
       end
 
-      def all_error_ids_for(klass)
-        results_for_class(klass).flat_map(&:all_errors).map(&:id).compact
-      end
-
-      def invalid_model_errors_for(klass)
-        results_for_class(klass).flat_map(&:invalid_model_errors)
+      def error_ids_for(klass)
+        results_for_class(klass).errors.map(&:id).compact
       end
 
       def all_classes
@@ -53,17 +51,17 @@ module BrokenRecord
         @aggregated_results.values.flatten
       end
 
-      def all_errors
-        all_results.flat_map(&:all_errors)
+      def errors
+        all_results.flat_map(&:errors)
       end
 
-      def all_errors_for(klass)
-        results_for_class(klass).flat_map(&:all_errors)
+      def errors_for(klass)
+        results_for_class(klass).errors
       end
 
       def duration(klass)
-        start_time = results_for_class(klass).map(&:start_time).min
-        end_time = results_for_class(klass).map(&:end_time).max
+        start_time = results_for_class(klass).start_time
+        end_time = results_for_class(klass).end_time
         (end_time - start_time).round(3)
       end
 

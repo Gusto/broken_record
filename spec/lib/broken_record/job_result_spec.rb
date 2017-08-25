@@ -17,36 +17,12 @@ module BrokenRecord
     end
 
     describe '#add_error' do
-      let(:error) { contract_double(error_class) }
+      let(:error) { Struct.new(:id) }
       subject { job_result.add_error(error) }
-      context 'error is InvalidModelError' do
-        let(:error_class) { BrokenRecord::ReportableError::InvalidModelError }
-        it 'modifies errors correctly' do
-          subject
-          expect(job_result.instance_variable_get(:@invalid_model_errors)).to eq [error]
-          expect(job_result.instance_variable_get(:@all_errors)).to eq [error]
-          expect(job_result.instance_variable_get(:@exception_errors)).to eq []
-        end
-      end
 
-      context 'error is ValidatorExceptionError' do
-        let(:error_class) { BrokenRecord::ReportableError::ValidatorExceptionError }
-        it 'modifies errors correctly' do
-          subject
-          expect(job_result.instance_variable_get(:@invalid_model_errors)).to eq []
-          expect(job_result.instance_variable_get(:@all_errors)).to eq [error]
-          expect(job_result.instance_variable_get(:@exception_errors)).to eq [error]
-        end
-      end
-
-      context 'error is ModelValidationExceptionError' do
-        let(:error_class) { BrokenRecord::ReportableError::ModelValidationExceptionError }
-        it 'modifies errors correctly' do
-          subject
-          expect(job_result.instance_variable_get(:@invalid_model_errors)).to eq []
-          expect(job_result.instance_variable_get(:@all_errors)).to eq [error]
-          expect(job_result.instance_variable_get(:@exception_errors)).to eq [error]
-        end
+      it 'modifies errors correctly' do
+        subject
+        expect(job_result.instance_variable_get(:@errors)).to eq [error]
       end
     end
   end

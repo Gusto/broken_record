@@ -21,9 +21,12 @@ Running validations for String...                                     \e[0;31;49
 3 errors were found while running validations for String
 Invalid ids: [3, 4, 5]
 Validation errors on first 3 invalid models
-\e[0;31;49minvalid String model 3\e[0m
-\e[0;31;49minvalid String model 4\e[0m
-\e[0;31;49minvalid String model 5\e[0m
+\e[0;31;49m    Invalid record in String id=3.
+        invalid String model 3\e[0m
+\e[0;31;49m    Invalid record in String id=4.
+        invalid String model 4\e[0m
+\e[0;31;49m    Invalid record in String id=5.
+        invalid String model 5\e[0m
 eos
           expect(logger.string).to eq expected
         end
@@ -40,9 +43,12 @@ Running validations for String...                                     \e[0;31;49
 3 errors were found while running validations for String
 Invalid ids: [3, 4, 5]
 Validation errors on first 2 invalid models
-\e[0;31;49minvalid String model 3\e[0m
-\e[0;31;49minvalid String model 4\e[0m
+\e[0;31;49m    Invalid record in String id=3.
+        invalid String model 3\e[0m
+\e[0;31;49m    Invalid record in String id=4.
+        invalid String model 4\e[0m
 eos
+
           expect(logger.string).to eq expected
         end
       end

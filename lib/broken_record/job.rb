@@ -1,5 +1,8 @@
+require 'broken_record/reportable_error'
+
 module BrokenRecord
   class Job
+
     attr_accessor :klass
 
     def initialize(klass:)
@@ -15,18 +18,23 @@ module BrokenRecord
             models_with_includes.where("#{klass.table_name}.#{primary_key}" => id_batch).each do |r|
               begin
                 if !r.valid?
-                  error = BrokenRecord::ReportableError::Factory.new.from_model(r)
-                  result.add_error(error)
+                  r.errors.error_mappings.each do |error_message, error_mapping|
+                    stacktrace = Array(error_mapping[:source])
+
+                    result.add_error(
+                      BrokenRecord::ReportableError.new(r.id, error_message, error_mapping[:context], stacktrace)
+                    )
+                  end
                 end
               rescue Exception => e
-                error = BrokenRecord::ReportableError::Factory.new.from_model_exception(r, e)
-                result.add_error(error)
+                stacktrace = BrokenRecord::ReportableError.prettify_stacktrace(e.backtrace, e)
+
+                result.add_error(
+                  BrokenRecord::ReportableError.new(r.id, "#{e.class} - #{e.message}", stacktrace[0], stacktrace)
+                )
               end
             end
           end
-        rescue Exception => e
-          error = BrokenRecord::ReportableError::Factory.new.from_validator_exception(klass, e)
-          result.add_error(e)
         end
 
         result.stop_timer
