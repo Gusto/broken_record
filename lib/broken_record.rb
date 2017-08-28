@@ -4,7 +4,6 @@ require "broken_record/config"
 require "broken_record/scanner"
 require "broken_record/railtie" if defined? Rails::Railtie
 require "broken_record/job_result"
-require 'broken_record/patches/active_model_errors'
 
 module BrokenRecord
   extend self

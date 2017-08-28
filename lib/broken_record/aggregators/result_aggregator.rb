@@ -3,6 +3,7 @@ module BrokenRecord
     class ResultAggregator
       def initialize
         @aggregated_results = {}
+        patch_active_record_errors!
       end
 
       def add_result(result)
@@ -71,6 +72,10 @@ module BrokenRecord
 
       def results_for_class(klass)
         @aggregated_results[klass]
+      end
+
+      def patch_active_record_errors!
+        require 'broken_record/patches/active_model_errors'
       end
     end
   end
