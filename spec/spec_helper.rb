@@ -1,13 +1,3 @@
-require 'coveralls'
-require 'simplecov'
-
-formatters = [SimpleCov::Formatter::HTMLFormatter]
-
-SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter.new(formatters)
-SimpleCov.start do
-  add_filter 'spec'
-end
-
 require 'rspec'
 require 'awesome_print'
 require 'yaml'
