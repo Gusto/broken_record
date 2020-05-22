@@ -1,0 +1,16 @@
+steps:
+  - name: ':rspec:'
+    command:
+      - 'docker build -t gusto-broken-record:$BUILDKITE_BUILD_ID .'
+      - 'docker run -t gusto-broken-record:$BUILDKITE_BUILD_ID rspec'
+
+  - block: ':rocket: Publish to Gem Server'
+    branches: master
+
+  - name: ':rocket: Publish to Gem Server'
+    command:
+      - 'docker build -t gusto-broken-record:$BUILDKITE_BUILD_ID .'
+      - 'docker run -t gusto-broken-record:$BUILDKITE_BUILD_ID sh -c "gem build broken_record.gemspec && gem push --config-file .gem/credentials --key gemstash --host https://gemstash.zp-int.com/private *.gem"'
+    branches: master
+    agents:
+      queue: gemstash-publish
